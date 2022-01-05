@@ -9,10 +9,9 @@ import {
   toggleAll, 
   deleteCompleted, 
   editTodo,
-  getData,
   updateUI
 } from "./handlers.js";
-import { setHeaders } from "./header.js";
+import { setHeaders } from "./headers.js";
 
 const server = http.createServer((request, response) => {
   setHeaders(response);
