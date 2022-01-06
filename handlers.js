@@ -1,50 +1,45 @@
 import { ObjectId } from "mongodb";
 
-export const updateUI = (todos, response) => {
-    todos.find().toArray((err, user) => {
-        err ? console.log('error', err) : null;
-        response.end(JSON.stringify(user));
-    });
+export const updateUI = async (todos, res) => {
+    const array = await todos.find({}).toArray();
+    res.end(JSON.stringify(array));
 }
-export const addData = (todos, body, response) => {
+export const addData = async (todos, body, res) => {
     const newTodoItem = {
         completed: false,
         value: JSON.parse(body)
     }
-    todos.insertOne(newTodoItem);
-    updateUI(todos, response);
+    await todos.insertOne(newTodoItem);
+    updateUI(todos, res);
 }
-export const removeItem = (body, todos, response) => {
+export const removeItem = async (todos, body, res) => {
     const id = new ObjectId(JSON.parse(body));
-    todos.deleteOne({_id: id});
-    updateUI(todos, response);
+    await todos.deleteOne({_id: id});
+    updateUI(todos, res);
 }
-export const toggleItem = (todos, body, response) => {
-    async function toggleItem() {
-        const id = new ObjectId(JSON.parse(body));
-        const currentItem = await todos.findOne({_id: id});
-        todos.findOneAndUpdate({_id: id}, {$set: {completed: !currentItem.completed}})
-        updateUI(todos, response);
-    }
-    toggleItem();
+export const toggleItem = async (todos, body, res) => {
+    const id = new ObjectId(JSON.parse(body));
+    const currentItem = await todos.findOne({_id: id});
+    await todos.findOneAndUpdate({_id: id}, {$set: {completed: !currentItem.completed}})
+    updateUI(todos, res);
 }
-export const toggleAll = (body, todos, response) => {
+export const toggleAll = async (todos, body, res) => {
     if(JSON.parse(body)) {
-        todos.updateMany({}, {$set: { completed: false}});
-        updateUI(todos, response);
+        await todos.updateMany({}, {$set: { completed: false}});
+        updateUI(todos, res);
     } else {
-        todos.updateMany({}, {$set: { completed: true}});
-        updateUI(todos, response);
+        await todos.updateMany({}, {$set: { completed: true}});
+        updateUI(todos, res);
     }
 }
-export const deleteCompleted = (todos, response) => {
-    todos.deleteMany({completed : true});
-    updateUI(todos, response);
+export const deleteCompleted = async (todos, res) => {
+    await todos.deleteMany({completed : true});
+    updateUI(todos, res);
 }
-export const editTodo = (body, todos, response) => {
+export const editTodo = async (todos, body, res) => {
     const obj = JSON.parse(body);
     const id = new ObjectId(obj.id);
-    todos.updateOne({_id: id}, {$set: { value: obj.value}});
-    updateUI(todos, response);
+    await todos.updateOne({_id: id}, {$set: { value: obj.value}});
+    updateUI(todos, res);
 }
  
