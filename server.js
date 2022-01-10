@@ -1,90 +1,79 @@
-import * as http from "http";
-import { MongoClient, ObjectId } from "mongodb";
+import http from "http";
+import { MongoClient } from "mongodb";
 import  { ENDPOINTS } from "./apiConstants.js";
 import { port, hostname, dbName, uri } from "./config.js";
+import { 
+  addData, 
+  removeItem, 
+  toggleItem, 
+  toggleAll, 
+  deleteCompleted, 
+  editTodo,
+  updateUI
+} from "./handlers.js";
+import { setHeaders } from "./headers.js";
 
-const server = http.createServer((request, response) => {
-  response.statusCode = 200;
-  response.setHeader("Content-Type", "text/plain");
-  response.setHeader("Content-Type", "application/json");
-  response.setHeader("Access-Control-Allow-Origin", "*");
-  response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  response.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With,content-type"
-  );
-  response.setHeader("Access-Control-Allow-Credentials", true);
+let db = null;
 
-  MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-      if (err) {
-        console.log("can not connect to database");
-      }
-      const db = client.db(dbName);
-      const todos = db.collection("todos");
+const client = new MongoClient(uri,{ useNewUrlParser: true, useUnifiedTopology: true });
+async function connectToDB() {
+  try {
+    await client.connect();
+    db = client.db(dbName);
+  } catch(err) {
+    console.log('failed to connect DB', err.stack);
+  }
+}
 
-      request.on('data', (chunk) => {
-        let body = "";
-        body += chunk;
-        
-        function updateUI() {
-          todos.find().toArray((err, user) => {
-            response.end(JSON.stringify(user));
-          });
-        }
+const server = http.createServer();
 
-        if (request.method === "POST") {
-          if(request.url === ENDPOINTS.addData) {
-            const newTodoItem = {
-              completed: false,
-              value: JSON.parse(body)
-            }
-            todos.insertOne(newTodoItem);
-            updateUI();
-          } 
-          else if(request.url === ENDPOINTS.removeItem) {
-            const id = new ObjectId(JSON.parse(body));
-            todos.deleteOne({_id: id});
-            updateUI();
-          } 
-          else if(request.url === ENDPOINTS.toggleItem) {
-            async function toggleItem() {
-              const id = new ObjectId(JSON.parse(body));
-              const currentItem = await todos.findOne({_id: id});
-              todos.findOneAndUpdate({_id: id}, {$set: {completed: !currentItem.completed}})
-              updateUI();
-            }
-            toggleItem();
-          } 
-          else if(request.url === ENDPOINTS.toggleAll) {
-            if(JSON.parse(body)) {
-              todos.updateMany({}, {$set: { completed: false}});
-              updateUI();
-            } else {
-              todos.updateMany({}, {$set: { completed: true}});
-              updateUI();
-            }
-          } 
-          else if(request.url === ENDPOINTS.deleteCompleted) {
-            todos.deleteMany({completed : true});
-            updateUI();
-          } 
-          else if(request.url === ENDPOINTS.editTodo) {
-            const obj = JSON.parse(body);
-            const id = new ObjectId(obj.id);
-            todos.updateOne({_id: id}, {$set: { value: obj.value}});
-            updateUI()
-          }
-        }
-      })
-      if(request.method === "GET") {
-        db.collection("todos").find().toArray((err, user) => {
-          err ? console.log('error', err) : null;
-          response.end(JSON.stringify(user));
-        });
+server.on('request', (req, res) => {
+  let body = "";
+  setHeaders(res);
+  const todosCollection = db.collection("todos");
+
+  if(req.method === "GET") {
+    updateUI(todosCollection, res);
+  }
+
+  req.on('data', chunk => {
+    body += chunk;
+
+    if(req.method === "POST") {
+      switch(req.url) {
+        case ENDPOINTS.addData:
+          addData(todosCollection,body,res);
+          break;
+        case ENDPOINTS.removeItem:
+          removeItem(todosCollection,body,res);
+          break;
+        case ENDPOINTS.toggleItem:
+          toggleItem(todosCollection,body,res);
+          break;
+        case ENDPOINTS.toggleAll:
+          toggleAll(todosCollection,body,res);
+          break;
+        case ENDPOINTS.deleteCompleted:
+          deleteCompleted(todosCollection, res);
+          break;
+        case ENDPOINTS.editTodo:
+          editTodo(todosCollection,body,res);
+          break;
+        default:
+          res.writeHead(404, 'Not found', {'content-type' : 'text/plain'});
+          res.end();
+          break;
       }
     }
-  );
+  })
+  req.on('error', () => {
+    res.writeHead(400, 'Could not get data', {'content-type' : 'text/plain'});
+    res.end();
+  })
 });
+
+connectToDB();
+
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
