@@ -24,17 +24,16 @@ async function connectToDB() {
     console.log('failed to connect DB', err.stack);
   }
 }
-connectToDB();
 
 const server = http.createServer();
 
 server.on('request', (req, res) => {
   let body = "";
   setHeaders(res);
-  const todos = db.collection("todos");
+  const todosCollection = db.collection("todos");
 
   if(req.method === "GET") {
-    updateUI(todos, res);
+    updateUI(todosCollection, res);
   }
 
   req.on('data', chunk => {
@@ -43,33 +42,38 @@ server.on('request', (req, res) => {
     if(req.method === "POST") {
       switch(req.url) {
         case ENDPOINTS.addData:
-          addData(todos,body,res);
+          addData(todosCollection,body,res);
           break;
         case ENDPOINTS.removeItem:
-          removeItem(todos,body,res);
+          removeItem(todosCollection,body,res);
           break;
         case ENDPOINTS.toggleItem:
-          toggleItem(todos,body,res);
+          toggleItem(todosCollection,body,res);
           break;
         case ENDPOINTS.toggleAll:
-          toggleAll(todos,body,res);
+          toggleAll(todosCollection,body,res);
           break;
         case ENDPOINTS.deleteCompleted:
-          deleteCompleted(todos, res);
+          deleteCompleted(todosCollection, res);
           break;
         case ENDPOINTS.editTodo:
-          editTodo(todos,body,res);
+          editTodo(todosCollection,body,res);
           break;
         default:
-          updateUI(todos, res);
+          res.writeHead(404, 'Not found', {'content-type' : 'text/plain'});
+          res.end();
           break;
       }
     }
   })
   req.on('error', () => {
-    res.end(JSON.stringify('Error 400, could not get data'));
+    res.writeHead(400, 'Could not get data', {'content-type' : 'text/plain'});
+    res.end();
   })
-})
+});
+
+connectToDB();
+
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
