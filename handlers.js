@@ -1,21 +1,22 @@
 import { ObjectId } from "mongodb";
+import { todosCollection } from "./connectDB.js";
 
-export const getTodos = async (todosCollection, res) => {
+export const getTodos = async (ctx) => {
     const array = await todosCollection.find({}).toArray();
     if(array) {
-        res.end(JSON.stringify(array));
+        ctx.body = "Hello world";
     } else {
         throw new Error('Could not get data');
     }
-        
+     
 }
-export const addData = async (todosCollection, body, res) => {
+export const addData = async (ctx) => {
     const newTodoItem = {
         completed: false,
-        value: JSON.parse(body).trim()
+        value: JSON.parse(ctx.body).trim()
     }
     await todosCollection.insertOne(newTodoItem);
-    getTodos(todosCollection, res);
+    getTodos(ctx);
 }
 export const removeItem = async (todosCollection, body, res) => {
     const id = new ObjectId(JSON.parse(body));
