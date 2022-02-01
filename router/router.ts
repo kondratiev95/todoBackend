@@ -1,5 +1,4 @@
 import * as Router from "@koa/router";
-import { Context } from "koa";
 import { ENDPOINTS } from "../config/apiConstants";
 import * as handlers from "../app/handlers";
 import { SetValueType, SetIdType, KoaContext, SetToggleAllType, TodosObjectType, SetEditTodoObjType  } from "../ts/types";
