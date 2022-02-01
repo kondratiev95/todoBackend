@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { todosCollection } from "../connectToDB/connectToDB";
+import { todosCollection, usersCollection } from "../connectToDB/connectToDB";
 import {Context} from 'koa';
 
 export const getTodos = async (ctx: Context) => {
@@ -59,3 +59,8 @@ export const editTodo = async (ctx: Context) => {
     ctx.body = ctx.request.body;
 }
  
+export const sendCredentials = async(ctx: Context) => {
+    const obj = JSON.parse(ctx.request.body);
+    const res = await usersCollection.insertOne(obj);
+    console.log(res);
+}

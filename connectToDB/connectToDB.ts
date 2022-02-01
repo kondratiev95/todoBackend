@@ -21,3 +21,5 @@ export default async function connectToDB() {
 db = client.db(dbName);
 
 export const todosCollection = db.collection("todos");
+
+export const usersCollection = db.collection("users");

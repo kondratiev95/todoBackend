@@ -6,5 +6,6 @@ export const ENDPOINTS = {
     toggleItem: '/toggle-item',
     toggleAll: '/toggle-all',
     deleteCompleted: '/delete-completed',
-    editTodo: '/edit-todo'
+    editTodo: '/edit-todo',
+    registration: '/registration'
 }
