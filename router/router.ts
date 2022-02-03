@@ -26,7 +26,7 @@ router.post(ENDPOINTS.deleteCompleted, async(ctx: KoaContext) => {
 router.post(ENDPOINTS.editTodo, async(ctx: KoaContext<SetEditTodoObjType>) => {
   await handlers.editTodo(ctx);
 });
-router.post(ENDPOINTS.registration, async(ctx: KoaContext) => {
+router.post(ENDPOINTS.signup, async(ctx: KoaContext) => {
   await handlers.sendCredentials(ctx);
 })
 

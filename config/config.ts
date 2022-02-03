@@ -1,3 +1,4 @@
+require('dotenv').config()
 export const hostname: string = "127.0.0.1";
 export const port: number = 3001;
 export const dbName: string = "todo-app";

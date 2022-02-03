@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { todosCollection, usersCollection } from "../connectToDB/connectToDB";
 import {Context} from 'koa';
+const CryptoJS = require("crypto-js")
 
 export const getTodos = async (ctx: Context) => {
     const array = await todosCollection.find({}).toArray();
@@ -8,7 +9,7 @@ export const getTodos = async (ctx: Context) => {
         ctx.body = array;
     } else {
         throw new Error('Could not get data');
-    }  
+    }
 }
 
 export const addData = async (ctx: Context) => {
@@ -60,7 +61,16 @@ export const editTodo = async (ctx: Context) => {
 }
  
 export const sendCredentials = async(ctx: Context) => {
+    console.log('fffffffff', process.env.SECRET_KEY)
     const obj = JSON.parse(ctx.request.body);
-    const res = await usersCollection.insertOne(obj);
-    console.log(res);
+    //TODO add check if user already exist
+    if(await usersCollection.findOne({ username: obj.username}) === null) {
+        await usersCollection.insertOne(obj);
+        ctx.body = JSON.stringify('User successfully registered');
+        ctx.response.status = 200;
+    } else {
+        ctx.body =  JSON.stringify('User already registered');
+        ctx.response.status = 401;
+    }
+     
 }

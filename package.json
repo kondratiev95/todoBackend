@@ -13,6 +13,8 @@
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@koa/router": "^10.1.1",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^15.0.0",
     "koa": "^2.13.4",
     "koa-body": "^4.2.0",
     "koa-bodyparser": "^4.3.0",
@@ -22,6 +24,7 @@
     "ts-node-dev": "^1.1.8"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.1.0",
     "@types/koa": "^2.13.4",
     "@types/koa-bodyparser": "^4.3.5",
     "@types/koa-router": "^7.4.4",
