@@ -60,17 +60,4 @@ export const editTodo = async (ctx: Context) => {
     ctx.body = ctx.request.body;
 }
  
-export const sendCredentials = async(ctx: Context) => {
-    console.log('fffffffff', process.env.SECRET_KEY)
-    const obj = JSON.parse(ctx.request.body);
-    //TODO add check if user already exist
-    if(await usersCollection.findOne({ username: obj.username}) === null) {
-        await usersCollection.insertOne(obj);
-        ctx.body = JSON.stringify('User successfully registered');
-        ctx.response.status = 200;
-    } else {
-        ctx.body =  JSON.stringify('User already registered');
-        ctx.response.status = 401;
-    }
-     
-}
+ 

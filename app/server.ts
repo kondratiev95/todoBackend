@@ -1,6 +1,6 @@
-import * as Koa from "koa";
-import * as cors from "@koa/cors";
-import * as koaBody from "koa-body";
+import Koa from "koa";
+import cors from "@koa/cors";
+import koaBody from "koa-body";
 import { port, hostname } from "../config/config";
 import router from '../router/router';
 import connectToDB from "../connectToDB/connectToDB";

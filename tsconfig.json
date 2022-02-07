@@ -2,7 +2,8 @@
     "compilerOptions": {
         "target": "ES2015",
         "module": "commonjs",
-        "strict": false
+        "strict": false,
+        "esModuleInterop": true
     },
     "exclude": [
         "node_modules"
