@@ -44,7 +44,7 @@ export const sendLoginData = async(ctx: Context) => {
                 },
                 process.env.ACCESS_KEY,
                 {
-                    expiresIn: 10,
+                    expiresIn: '10m',
                 }
             )
             console.log('accessToken', accessToken);
@@ -68,5 +68,23 @@ export const sendLoginData = async(ctx: Context) => {
         ctx.status = 401;
         ctx.body = "Pass or username don't match"
     }
+}
+
+export const verifyToken = async (ctx: Context, next: any) => {
+    if(!ctx.header.authorization) {
+        ctx.status = 403
+        ctx.body = 'Something went wrong'
+    }
+    const token = ctx.header.authorization.split(' ')[1];
+    console.log('TOKEN', token);
     
+    try {
+        const a = jwt.verify(token, `${process.env.ACCESS_KEY}`);
+        console.log('AAAAAAAA++++++', a);
+        await next()
+        
+    } catch (error) {
+        ctx.status = 401
+        ctx.body = 'Token expired'
+    }
 }
