@@ -34,5 +34,8 @@ router.post(ENDPOINTS.signup, async(ctx: KoaContext) => {
 router.post(ENDPOINTS.signin, async(ctx: KoaContext) => {
   await authHandlers.sendLoginData(ctx);
 })
+router.post(ENDPOINTS.refresh, async(ctx: KoaContext) => {
+  await authHandlers.refreshHandler(ctx);
+})
 
 export default router;

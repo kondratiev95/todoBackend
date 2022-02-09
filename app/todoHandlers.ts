@@ -13,7 +13,9 @@ export const getTodos = async (ctx: Context) => {
     if(array) {
         ctx.body = array;
     } else {
-        throw new Error('Could not get data');
+        ctx.status = 401;
+        // throw new Error('Could not get data');
+        throw new Error('Could not get datas')
     }
 }
 

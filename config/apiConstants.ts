@@ -8,5 +8,6 @@ export const ENDPOINTS = {
     deleteCompleted: '/delete-completed',
     editTodo: '/edit-todo',
     signup: '/sign-up',
-    signin: '/sign-in'
+    signin: '/sign-in',
+    refresh: '/refresh'
 }
