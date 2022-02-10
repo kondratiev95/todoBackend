@@ -1,8 +1,10 @@
-import { todosCollection, usersCollection } from "../connectToDB/connectToDB";
+import { usersCollection } from "../connectToDB/connectToDB";
 import {Context} from 'koa';
+import { ObjectId } from "mongodb";
 import jwt from 'jsonwebtoken';
 import CryptoJS from "crypto-js";
 import cryptoRandomString from 'crypto-random-string';
+import { getUserId } from "../utils/utils";
 
 
 export const sendCredentials = async(ctx: Context) => {
@@ -70,26 +72,15 @@ export const sendLoginData = async(ctx: Context) => {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 export const refreshHandler = async(ctx: Context) => {
     const reqObj = JSON.parse(ctx.request.body);
     console.log(reqObj);
     
-    // const decryptPassword = CryptoJS.AES.decrypt(reqObj.accessToken, process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8);
-    const decryptPassword = CryptoJS.AES.decrypt(reqObj.accessToken, process.env.SECRET_KEY).toString();
-    console.log('asdasdasdsdad', decryptPassword);
-    const userFromMongo = await usersCollection.findOne({ username: reqObj.username})
+    const accessToken = reqObj.accessToken
+    const userId = getUserId(accessToken)
+    console.log(userId);
+    
+    const userFromMongo = await usersCollection.findOne({ _id: new ObjectId(userId)});
     console.log('userFromMongo', userFromMongo);
     console.log(userFromMongo.refreshToken)
     const compareRefreshTokens = userFromMongo.refreshToken === reqObj.refreshToken;
@@ -120,31 +111,10 @@ export const refreshHandler = async(ctx: Context) => {
         ctx.status = 200;
     } else {
         ctx.status = 401;
-        ctx.body = "Tokens dont't match" 
+        ctx.body = "Tokens don't match"
+        throw new Error("Tokens dont't match")
     } 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const verifyToken = async (ctx: Context, next: any) => {
     if(!ctx.header.authorization) {
@@ -155,12 +125,13 @@ export const verifyToken = async (ctx: Context, next: any) => {
     // console.log('TOKEN', token);
     
     try {
-        const a = jwt.verify(token, `${process.env.ACCESS_KEY}`);
+        jwt.verify(token, `${process.env.ACCESS_KEY}`);
         // console.log('AAAAAAAA++++++', a);
-        await next()
         
     } catch (error) {
         ctx.status = 401
         ctx.body = 'Token expired'
     }
+
+    await next()
 }
