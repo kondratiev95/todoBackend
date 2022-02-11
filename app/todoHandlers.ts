@@ -4,26 +4,20 @@ import {Context} from 'koa';
 import { getUserId } from "../utils/utils";
 
 export const getTodos = async (ctx: Context) => {
-
     const accessToken = ctx.header.authorization.split(' ')[1]
     const userId = getUserId(accessToken)
     const array = await todosCollection.find({userId}).toArray();
-    console.log(array);
-
     if(array) {
         ctx.body = array;
     } else {
-        ctx.status = 401;
-        // throw new Error('Could not get data');
+        ctx.status = 401
         throw new Error('Could not get datas')
     }
 }
 
 export const addData = async (ctx: Context) => {
-    // console.log(ctx);
     const accessToken = ctx.header.authorization.split(' ')[1]
     const userId = getUserId(accessToken)
-    
     const newTodoItem = {
         completed: false,
         value: JSON.parse(ctx.request.body).trim(),
@@ -53,7 +47,6 @@ export const toggleItem = async (ctx: Context) => {
 export const toggleAll = async (ctx: Context) => {
     const accessToken = ctx.header.authorization.split(' ')[1]
     const userId = getUserId(accessToken)
-
     if(JSON.parse(ctx.request.body)) {
         await todosCollection.updateMany({userId}, {$set: { completed: false}});
         await getTodos(ctx);
@@ -66,7 +59,6 @@ export const toggleAll = async (ctx: Context) => {
 export const deleteCompleted = async (ctx: Context) => {
     const accessToken = ctx.header.authorization.split(' ')[1]
     const userId = getUserId(accessToken)
-
     await todosCollection.deleteMany({
         userId,
         completed: true
